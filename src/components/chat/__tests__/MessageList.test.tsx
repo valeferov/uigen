@@ -66,7 +66,7 @@ test("MessageList renders messages with parts", () => {
           toolInvocation: {
             toolCallId: "asdf",
             args: {},
-            toolName: "str_replace_editor",
+            toolName: "Editing file",
             state: "result",
             result: "Success",
           },
@@ -78,7 +78,7 @@ test("MessageList renders messages with parts", () => {
   render(<MessageList messages={messages} />);
 
   expect(screen.getByText("Creating your component...")).toBeDefined();
-  expect(screen.getByText("str_replace_editor")).toBeDefined();
+  expect(screen.getByText("Editing file")).toBeDefined();
 });
 
 test("MessageList shows content for assistant message with content", () => {
