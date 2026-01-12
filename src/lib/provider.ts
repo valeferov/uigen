@@ -7,7 +7,7 @@ import {
 } from "@ai-sdk/provider";
 
 const ANTHROPIC_MODEL = "claude-haiku-4-5";
-const OPENAI_MODEL = "gpt-4o-mini";
+const OPENAI_MODEL = "gpt-4o"; // Upgraded from gpt-4o-mini for better component generation
 
 export class MockLanguageModel implements LanguageModelV1 {
   readonly specificationVersion = "v1" as const;
