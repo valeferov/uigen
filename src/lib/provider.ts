@@ -6,11 +6,11 @@ import {
   LanguageModelV1Message,
 } from "@ai-sdk/provider";
 
-const ANTHROPIC_MODEL = "claude-haiku-4-5";
-const OPENAI_MODEL = "gpt-4o-mini";
+const ANTHROPIC_MODEL = "claude-3-5-haiku-20241022";
+const OPENAI_MODEL = "gpt-4o"; // Latest stable model
 
 export class MockLanguageModel implements LanguageModelV1 {
-  readonly specificationVersion = "v1" as const;
+  readonly specificationVersion = "v2" as const;
   readonly provider = "mock";
   readonly modelId: string;
   readonly defaultObjectGenerationMode = "tool" as const;
@@ -68,16 +68,19 @@ export class MockLanguageModel implements LanguageModelV1 {
     let componentType = "counter";
     let componentName = "Counter";
 
-    if (promptLower.includes("form")) {
+    if (promptLower.includes("form") || promptLower.includes("форма")) {
       componentType = "form";
       componentName = "ContactForm";
-    } else if (promptLower.includes("card")) {
+    } else if (promptLower.includes("card") || promptLower.includes("карточк")) {
       componentType = "card";
       componentName = "Card";
+    } else if (promptLower.includes("button") || promptLower.includes("кнопк")) {
+      componentType = "button";
+      componentName = "Button";
     }
 
-    // Step 1: Create component file
-    if (toolMessageCount === 1) {
+    // Step 1: Create component file (first request, no tool messages yet)
+    if (toolMessageCount === 0) {
       const text = `I'll create a ${componentName} component for you.`;
       for (const char of text) {
         yield { type: "text-delta", textDelta: char };
@@ -89,11 +92,11 @@ export class MockLanguageModel implements LanguageModelV1 {
         toolCallType: "function",
         toolCallId: `call_1`,
         toolName: "str_replace_editor",
-        args: JSON.stringify({
+        args: {
           command: "create",
           path: `/components/${componentName}.jsx`,
           file_text: this.getComponentCode(componentType),
-        }),
+        },
       };
 
       yield {
@@ -107,7 +110,38 @@ export class MockLanguageModel implements LanguageModelV1 {
       return;
     }
 
-    // Step 2: Enhance component
+    // Step 2: Create App.jsx (after component was created)
+    if (toolMessageCount === 1) {
+      const text = `Now let me create an App.jsx file to display the component.`;
+      for (const char of text) {
+        yield { type: "text-delta", textDelta: char };
+        await this.delay(15);
+      }
+
+      yield {
+        type: "tool-call",
+        toolCallType: "function",
+        toolCallId: `call_2`,
+        toolName: "str_replace_editor",
+        args: {
+          command: "create",
+          path: "/App.jsx",
+          file_text: this.getAppCode(componentName),
+        },
+      };
+
+      yield {
+        type: "finish",
+        finishReason: "tool-calls",
+        usage: {
+          promptTokens: 50,
+          completionTokens: 30,
+        },
+      };
+      return;
+    }
+
+    // Step 3: Enhance component (optional enhancement step)
     if (toolMessageCount === 2) {
       const text = `Now let me enhance the component with better styling.`;
       for (const char of text) {
@@ -118,45 +152,14 @@ export class MockLanguageModel implements LanguageModelV1 {
       yield {
         type: "tool-call",
         toolCallType: "function",
-        toolCallId: `call_2`,
+        toolCallId: `call_3`,
         toolName: "str_replace_editor",
-        args: JSON.stringify({
+        args: {
           command: "str_replace",
           path: `/components/${componentName}.jsx`,
           old_str: this.getOldStringForReplace(componentType),
           new_str: this.getNewStringForReplace(componentType),
-        }),
-      };
-
-      yield {
-        type: "finish",
-        finishReason: "tool-calls",
-        usage: {
-          promptTokens: 50,
-          completionTokens: 30,
         },
-      };
-      return;
-    }
-
-    // Step 3: Create App.jsx
-    if (toolMessageCount === 0) {
-      const text = `This is a static response. You can place an Anthropic API key in the .env file to use the Anthropic API for component generation. Let me create an App.jsx file to display the component.`;
-      for (const char of text) {
-        yield { type: "text-delta", textDelta: char };
-        await this.delay(15);
-      }
-
-      yield {
-        type: "tool-call",
-        toolCallType: "function",
-        toolCallId: `call_3`,
-        toolName: "str_replace_editor",
-        args: JSON.stringify({
-          command: "create",
-          path: "/App.jsx",
-          file_text: this.getAppCode(componentName),
-        }),
       };
 
       yield {
@@ -316,6 +319,47 @@ const Card = ({
 
 export default Card;`;
 
+      case "button":
+        return `import { useState } from 'react';
+
+const Button = ({ 
+  children = "Click me",
+  onClick,
+  variant = "primary",
+  disabled = false
+}) => {
+  const [clicked, setClicked] = useState(false);
+
+  const handleClick = () => {
+    setClicked(true);
+    if (onClick) {
+      onClick();
+    }
+    setTimeout(() => setClicked(false), 200);
+  };
+
+  const baseStyles = "px-6 py-3 rounded-lg font-semibold transition-all duration-200 transform";
+  const variantStyles = {
+    primary: "bg-blue-500 text-white hover:bg-blue-600 active:scale-95",
+    secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300 active:scale-95",
+    danger: "bg-red-500 text-white hover:bg-red-600 active:scale-95",
+    success: "bg-green-500 text-white hover:bg-green-600 active:scale-95",
+  };
+  const disabledStyles = "opacity-50 cursor-not-allowed";
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={disabled}
+      className={\`\${baseStyles} \${variantStyles[variant]} \${disabled ? disabledStyles : ''} \${clicked ? 'scale-95' : ''}\`}
+    >
+      {children}
+    </button>
+  );
+};
+
+export default Button;`;
+
       default:
         return `import { useState } from 'react';
 
@@ -372,6 +416,8 @@ export default Counter;`;
         return "    console.log('Form submitted:', formData);";
       case "card":
         return '      <div className="p-6">';
+      case "button":
+        return "  const [clicked, setClicked] = useState(false);";
       default:
         return "  const increment = () => setCount(count + 1);";
     }
@@ -383,6 +429,8 @@ export default Counter;`;
         return "    console.log('Form submitted:', formData);\n    alert('Thank you! We\\'ll get back to you soon.');";
       case "card":
         return '      <div className="p-6 hover:bg-gray-50 transition-colors">';
+      case "button":
+        return "  const [clicked, setClicked] = useState(false);\n  const [count, setCount] = useState(0);";
       default:
         return "  const increment = () => setCount(prev => prev + 1);";
     }
@@ -479,7 +527,7 @@ export default function App() {
   async doStream(
     options: Parameters<LanguageModelV1["doStream"]>[0]
   ): Promise<Awaited<ReturnType<LanguageModelV1["doStream"]>>> {
-    const userPrompt = this.extractUserPrompt(options.prompt);
+    const userPrompt = this.extractUserPrompt((options as any).prompt);
     const self = this;
 
     const stream = new ReadableStream<LanguageModelV1StreamPart>({
