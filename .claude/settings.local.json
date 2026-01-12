@@ -7,7 +7,13 @@
       "Bash(cd:*)",
       "Bash(npm audit:*)",
       "Bash(cat:*)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Bash(git rebase:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title \"feat: Enhance component generation with modern visual design\" --body \"$\\(cat <<''EOF''\n## 🎨 Overview\nThis PR significantly improves the component generation system to create visually stunning, modern React components with bold designs and professional aesthetics.\n\n## 📝 Changes\n\n### Enhanced Generation Prompt \\(`src/lib/prompts/generation.tsx`\\)\n- ✨ Added comprehensive visual design philosophy\n- 🎭 Implemented modern effects:\n  - **Glassmorphism**: backdrop-blur, transparency effects\n  - **Neumorphism**: soft shadows and depth\n  - **Bold Gradients**: purple/pink, cyan/blue, orange/red combinations\n- 🌊 Added smooth animations and interactive hover effects\n- 📐 Typography guidelines: bold headings \\(text-4xl, text-5xl\\), generous spacing\n- 🚫 Prohibited external icon libraries \\(use emojis 🚀 💎 ✨ or inline SVG\\)\n- 📚 Included detailed component-specific guidance and code examples\n\n### Upgraded AI Model \\(`src/lib/provider.ts`\\)\n- ⬆️ Updated from `gpt-4o-mini` to `gpt-4o`\n- 🧠 More powerful model for higher quality, more creative component generation\n\n## ✅ Impact\n\nComponents are now generated with:\n- **Bold colors** - Vibrant gradients instead of flat colors\n- **Modern effects** - Glassmorphism, deep shadows, backdrop-blur\n- **Smooth animations** - Hover transforms, scale effects, color transitions\n- **Professional typography** - Large, bold headings with proper spacing\n- **Unique designs** - Every component feels polished and memorable\n\n### Before\n- Simple, generic components\n- Basic colors \\(blue-500, gray-200\\)\n- Minimal visual effects\n- Standard spacing\n\n### After\n- Visually striking components\n- Bold gradient combinations\n- Glassmorphism & neumorphism\n- Generous spacing & animations\n\n## 🧪 Testing\nTested with multiple component types:\n- ✅ Simple buttons - Beautiful purple-to-pink gradients with hover effects\n- ✅ Complex cards - Glassmorphism pricing cards with animated buttons\n- ✅ No external dependencies - Uses emojis and inline SVG for icons\n\n## 📸 Example Results\n\n**Simple Button:**\n- Gradient: `from-purple-600 to-pink-500`\n- Shadow: `shadow-lg shadow-purple-500/50`\n- Hover: `scale-105`, increased shadow intensity\n- Active: `scale-95` for tactile feedback\n\n**Pricing Card:**\n- Glassmorphism background\n- Gradient border effects\n- Unicode checkmarks \\(✓\\)\n- Animated glowing button\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")"
     ]
   }
 }
